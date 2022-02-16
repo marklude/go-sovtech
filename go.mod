@@ -8,7 +8,10 @@ require (
 	github.com/vektah/gqlparser/v2 v2.2.0
 )
 
-require github.com/spf13/viper v1.10.1
+require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/spf13/viper v1.10.1
+)
 
 require (
 	github.com/agnivade/levenshtein v1.1.0 // indirect

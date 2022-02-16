@@ -9,8 +9,21 @@ type People {
   homeworld: String
 }
 
-# All query for people object
+# All query for people in Star wars
 type Query {
   peoples(first: Int): [People!]!
   peopleByName(name: String!): People
+}
+
+input NewUser {
+  username: String!
+}
+
+type Token {
+  jwtToken: String!
+}
+
+# Mutation for  JWT Auth
+type Mutation {
+  authentication(input: NewUser!): Token!
 }
