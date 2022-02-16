@@ -1,6 +1,9 @@
 package graph
 
-import "github.com/marklude/go-sovtech/graph/model"
+import (
+	"github.com/golang-jwt/jwt"
+	"github.com/marklude/go-sovtech/graph/model"
+)
 
 // This file will not be regenerated automatically.
 //
@@ -9,4 +12,13 @@ import "github.com/marklude/go-sovtech/graph/model"
 //go:generate go run github.com/99designs/gqlgen generate
 type Resolver struct {
 	Results *model.Results
+}
+
+type UserInfo struct {
+	Username string
+}
+
+type CustomClaims struct {
+	*jwt.StandardClaims
+	UserInfo
 }

@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/marklude/go-sovtech/dataloader"
+	"github.com/marklude/go-sovtech/directives"
 	"github.com/marklude/go-sovtech/graph"
 	"github.com/marklude/go-sovtech/graph/generated"
 	"github.com/spf13/viper"
@@ -30,7 +31,10 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	c := generated.Config{Resolvers: &graph.Resolver{}}
+	c.Directives.IsAuthenticated = directives.Authenticate
+
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))
 	router := http.NewServeMux()
 
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))

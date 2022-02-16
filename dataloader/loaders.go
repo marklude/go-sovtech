@@ -5,17 +5,26 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/marklude/go-sovtech/graph/model"
 	"github.com/spf13/viper"
 )
 
 type ctxKeyType struct{ name string }
 
-var ctxKey = ctxKeyType{"peopleCtx"}
+var ctxPeople = ctxKeyType{"peopleCtx"}
+var ctxReqToken = ctxKeyType{"tokenCtx"}
+
+// For signing key context
+var ctxSignedKey = ctxKeyType{"signedKey"}
+
+// Create the JWT key used to create the signature
+var JwtKey = []byte("my_secret_key")
 
 type loaders struct {
 	PeopleByName *PeopleLoader
@@ -23,6 +32,7 @@ type loaders struct {
 
 func Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+
 		ldrs := loaders{}
 		ldrs.PeopleByName = &PeopleLoader{
 			maxBatch: 100,
@@ -59,11 +69,38 @@ func Middleware(next http.Handler) http.Handler {
 				return result.Peoples, nil
 			},
 		}
-		ctx := context.WithValue(r.Context(), ctxKey, ldrs)
+
+		ctx := context.WithValue(r.Context(), ctxPeople, ldrs)
+		ctx = context.WithValue(ctx, ctxSignedKey, JwtKey)
+		ctx = context.WithValue(ctx, ctxReqToken, r.Header.Get("Authorization"))
 		next.ServeHTTP(rw, r.WithContext(ctx))
 	})
 }
 
 func CtxLoaders(ctx context.Context) loaders {
-	return ctx.Value(ctxKey).(loaders)
+	return ctx.Value(ctxPeople).(loaders)
+}
+
+func RequestToken(ctx context.Context) string {
+	return ctx.Value(ctxReqToken).(string)
+}
+
+func IsValidJWT(ctx context.Context, tokenString string) bool {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			log.Printf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return JwtKey, nil
+	})
+
+	if err != nil {
+		log.Printf("[Token Error] - %s", err)
+		return false
+	}
+
+	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return true
+	} else {
+		return false
+	}
 }
