@@ -19,21 +19,20 @@ import (
 )
 
 func (r *mutationResolver) Authentication(ctx context.Context, input model.NewUser) (*model.Token, error) {
-	var signKey = generateKeyPair(2048)
-	t := jwt.New(jwt.GetSigningMethod("RS256"))
+
+	t := jwt.New(jwt.SigningMethodHS256)
 	t.Claims = &CustomClaims{
 		&jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Minute * 30).Unix(),
 		},
 		UserInfo{Username: input.Username},
 	}
-	token, err := t.SignedString(signKey)
+	token, err := t.SignedString(dataloader.JwtKey)
 	if err != nil {
 		return nil, err
 	}
 
 	return &model.Token{JwtToken: token}, nil
-
 }
 
 func (r *queryResolver) Peoples(ctx context.Context, first *int) ([]*model.People, error) {

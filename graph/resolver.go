@@ -1,10 +1,6 @@
 package graph
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
-	"fmt"
-
 	"github.com/golang-jwt/jwt"
 	"github.com/marklude/go-sovtech/graph/model"
 )
@@ -25,14 +21,4 @@ type UserInfo struct {
 type CustomClaims struct {
 	*jwt.StandardClaims
 	UserInfo
-}
-
-func generateKeyPair(bits int) *rsa.PrivateKey {
-	// This method requires a random number of bits.
-	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
-	if err != nil {
-		fmt.Println("Error: ", err)
-	}
-
-	return privateKey
 }
