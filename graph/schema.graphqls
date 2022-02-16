@@ -1,0 +1,16 @@
+# SOVTECH GraphQL schema Star Wars wrapper
+
+# People from Star Wars
+type People {
+  name: String!
+  height: String
+  mass: String
+  gender: String!
+  homeworld: String
+}
+
+# All query for people object
+type Query {
+  peoples(first: Int): [People!]!
+  peopleByName(name: String!): People
+}
