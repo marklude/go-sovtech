@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gosovtech-deploy
+  labels:
+    name: gosovtech-deploy
+    app: go-graphql-sovtech
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: gosovtech-pod
+      app: go-graphql-sovtech
+  template:
+    metadata:
+      labels:
+        name: gosovtech-pod
+        app: go-graphql-sovtech
+    spec:
+      containers:
+        - name: gosovtech
+          image: marklude/gosovtech:v0.0.1
+          ports:
+            - containerPort: 8081
